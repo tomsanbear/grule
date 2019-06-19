@@ -1,0 +1,10 @@
+define facts.current_year 2019
+define facts.next_year 2020
+
+IF facts.year EQUALS event.current_year {
+
+}
+
+IF facts.year EQUALS event.next_year {
+    
+}

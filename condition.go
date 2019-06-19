@@ -1,29 +1,39 @@
 package grule
 
+import (
+	"fmt"
+	"strings"
+)
+
 // Condition is the interface that all conditions need to implement
 type Condition interface {
-	Satisfies(Foo) bool    // Determines if our condition is satisfied or not
-	Pack() (string, error) // Serializes the logic to a human readable format
-	Unpack(string) error   // Deserializes the logic to machine readable format
+	Satisfied(Event) bool  // Determines if our condition is satisfied or not
+	Pack() (string, error) // Pack takes this condition, and writes it out to a txt file
+	Unpack(string) error   // Unpack takes the string input, and coverts it to go objects
 }
 
+// ConditionEQ implements the 'equals' condition
 type ConditionEQ struct {
-	LHS Foo     // Left hand side is always the 'immutable' property being compared, a list, a number, etc...
-	RHS BarProp // RHS is a property of the Bar that is looking to be compared
+	fact     Fact          // The fact within the system that we are comparing to (the left hand side)
+	property EventProperty // The property that we are extracting from the event
 }
 
-// Satisfies compares the LHS to the RHS
-func (c *ConditionEQ) Satisfies(foo Foo) bool {
-	return c.LHS.EQ(foo)
+func (c *ConditionEQ) Satisfied(event Event) bool {
+	return c.fact.Equals(c.property, event)
 }
 
-// Pack our shit up into one line
 func (c *ConditionEQ) Pack() (string, error) {
 	var packed []string
+	packed = append(packed, "IF", c.fact.Property(), "EQUALS", c.property.ToString())
+	return strings.Join(packed, " "), nil
+}
 
-	// Always an IF
-	packed = append(packed, "IF")
+func (c *ConditionEQ) Unpack(input string) error {
+	unpacked := strings.Fields(input)
+	if len(unpacked) != 4 {
+		return fmt.Errorf("invalid number of args for ConditionEQ")
+	}
 
-	// Pack up the Foo
-	packedbar, err := c.RHS
+	// Deserialize now
+
 }
